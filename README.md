@@ -23,68 +23,8 @@ Given a paper ID, the pipeline writes a markdown file with:
 
 ## Pipeline
 
-```
-arxiv ID
-   │
-   ▼
-┌─────────────┐
-│  ingest.ts  │  Parse PDF via GROBID
-└──────┬──────┘
-       │
-       ▼
-┌─────────────┐
-│   embed.ts  │  Chunk + embed via Voyage → ChromaDB
-└──────┬──────┘
-       │
-       ├──────────────────────────────┐
-       ▼                              ▼
-┌──────────────┐             ┌─────────────────┐
-│ classify.ts  │             │  knowledge.ts   │
-│ paper type + │             │  unified KB for │
-│ template     │             │  cross-paper Q&A│
-└──────┬───────┘             └─────────────────┘
-       │
-       │  ┌──────────────────────────────────────────┐
-       │  │              extract.ts                  │
-       │  │  (parallel LangGraph nodes)              │
-       ├──► TL;DR  Glossary  Metadata  WhyItMatters  │
-       │  │                  PullQuotes               │
-       │  │              ↓ (join)                    │
-       │  │           Write Sections                 │
-       │  └──────────────────┬───────────────────────┘
-       │                     │
-       │                     ▼
-       │              ┌─────────────┐
-       │              │ codegen.ts  │  Generate + validate TypeScript
-       │              │ (method     │  3-turn: explain → code → comment
-       │              │  papers)    │
-       │              └──────┬──────┘
-       │                     │
-       │                     ▼
-       │         ┌───────────────────────┐
-       │         │      critique.ts      │
-       │         │   Score draft 1–5     │◄──────┐
-       │         └──────────┬────────────┘       │
-       │                    │                    │
-       │           score≥4 or            score<4 and
-       │           max revisions         revisions<2
-       │                    │                    │
-       │                    │            ┌───────┴──────┐
-       │                    │            │ critique.ts  │
-       │                    │            │ Revise       │
-       │                    │            │ sections     │
-       │                    │            └──────────────┘
-       │                    │
-       │                    ▼
-       │           ┌──────────────────┐
-       └──────────►│  assemble.ts     │  Stream to terminal + write file
-                   └────────┬─────────┘
-                            │
-                            ▼
-                    out/{arxivId}.md
-```
+<img width="876" height="502" alt="image" src="https://github.com/user-attachments/assets/aa229b9e-9a19-4049-ba85-b22047c46892" />
 
----
 
 ## Key concepts
 
