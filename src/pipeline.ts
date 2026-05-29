@@ -54,22 +54,6 @@ async function main() {
   );
   console.log(chalk.green(`\n✓ Markdown written to out/${ARXIV_ID}.md\n`));
 
-  const { createKnowledgeBase, addPaperToKnowledgeBase, askKnowledgeBase } =
-    await import("./stages/knowledge.js");
-
-  console.log(chalk.yellow("Stage 10: Adding to knowledge base..."));
-  const kb = await createKnowledgeBase();
-  const chunks = await chunkPaper(paper);
-  await addPaperToKnowledgeBase(kb, paper, chunks);
-  console.log(chalk.green(`✓ KB ready with ${kb.knownArxivIds.size} paper(s)\n`));
-
-  console.log(chalk.yellow("Stage 10: Asking cross-paper question..."));
-  const query = "How does retrieval reduce hallucination compared to fine-tuning?";
-  console.log(chalk.cyan(`Q: ${query}\n`));
-  const cross = await askKnowledgeBase(query);
-  console.log(chalk.gray(`\n${cross.answer.slice(0, 300)}...`));
-  console.log(chalk.cyan(`\nSynthesis: ${cross.synthesis.slice(0, 200)}...\n`));
-
   console.log(chalk.bold.green("✓ Pipeline complete\n"));
   console.log(chalk.gray(`Output: out/${ARXIV_ID}.md`));
 }
