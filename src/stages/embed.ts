@@ -100,41 +100,7 @@ export async function createVectorStore(
     url: process.env.CHROMA_URL ?? "http://localhost:8000",
   });
 
-  const BATCH_SIZE = 32;
-  const MAX_ATTEMPTS = 4;
-  const THROTTLE_MS = 22_000;
-  const totalBatches = Math.ceil(docs.length / BATCH_SIZE);
-
-  for (let i = 0; i < docs.length; i += BATCH_SIZE) {
-    const batch = docs.slice(i, i + BATCH_SIZE);
-
-    const cleanBatch = batch.filter(
-      (doc) => doc.pageContent && doc.pageContent.trim().length > 0,
-    );
-
-    if (cleanBatch.length === 0) continue;
-
-    const batchNum = i / BATCH_SIZE + 1;
-    for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
-      try {
-        await store.addDocuments(cleanBatch);
-        console.log(`Added batch ${batchNum}/${totalBatches} (${cleanBatch.length} chunks)`);
-        break;
-      } catch (err) {
-        if (attempt === MAX_ATTEMPTS) {
-          console.error(`Batch ${batchNum} failed after ${MAX_ATTEMPTS} attempts:`, err);
-          break;
-        }
-        const wait = 25_000 * attempt;
-        console.warn(`Batch ${batchNum} attempt ${attempt} failed — waiting ${wait / 1000}s before retry`);
-        await new Promise((r) => setTimeout(r, wait));
-      }
-    }
-
-    if (i + BATCH_SIZE < docs.length) {
-      await new Promise((r) => setTimeout(r, THROTTLE_MS));
-    }
-  }
+  await store.addDocuments(docs);
   const chunkCount = docs.length;
   return { store, collectionName, chunkCount };
 }
@@ -173,20 +139,9 @@ export async function searchStore(
   }>
 > {
   const embeddings = getVoyageEmbeddings("query");
-  let queryEmbedding: number[] | undefined;
-  for (let attempt = 1; attempt <= 4; attempt++) {
-    try {
-      queryEmbedding = await embeddings.embedQuery(query);
-      break;
-    } catch (err) {
-      if (attempt === 4) throw err;
-      const wait = 25_000 * attempt;
-      console.warn(`Query embed attempt ${attempt} failed — waiting ${wait / 1000}s before retry`);
-      await new Promise((r) => setTimeout(r, wait));
-    }
-  }
+  const queryEmbedding = await embeddings.embedQuery(query);
   const results = await store.store.similaritySearchVectorWithScore(
-    queryEmbedding!,
+    queryEmbedding,
     k,
   );
   return results.map(([doc, score]) => ({
