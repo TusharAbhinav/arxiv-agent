@@ -1,0 +1,43 @@
+{
+  "name": "arxiv-agent",
+  "version": "2.0.0",
+  "description": "AI agent that converts research papers into engineering blogposts",
+  "type": "module",
+  "scripts": {
+    "demo:ingest": "npx tsx demo/ingest-demo.ts",
+    "demo:embed": "npx tsx demo/embed-demo.ts",
+    "demo:retrieve": "npx tsx demo/retrieve-demo.ts",
+    "demo:classify": "npx tsx demo/classify-demo.ts",
+    "demo:extract": "npx tsx demo/extract-demo.ts",
+    "demo:codegen": "npx tsx demo/codegen-demo.ts",
+    "demo:critique": "npx tsx demo/critique-demo.ts",
+    "demo:related": "npx tsx demo/related-demo.ts",
+    "demo:assemble": "npx tsx demo/assemble-demo.ts",
+    "demo:knowledge": "npx tsx demo/knowledge-demo.ts",
+    "pipeline": "npx tsx src/pipeline.ts",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0",
+    "@langchain/anthropic": "^0.3.0",
+    "@langchain/community": "^0.3.0",
+    "@langchain/core": "^0.3.0",
+    "@langchain/langgraph": "^0.2.0",
+    "@langchain/langgraph-checkpoint-sqlite": "^0.1.0",
+    "better-sqlite3": "^11.3.0",
+    "chalk": "^5.3.0",
+    "chromadb": "^1.9.0",
+    "dotenv": "^16.4.0",
+    "fast-xml-parser": "^4.5.0",
+    "langchain": "^0.3.0",
+    "voyageai": "^0.0.4",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "tsx": "^4.22.1",
+    "typescript": "^5.4.0"
+  }
+}
