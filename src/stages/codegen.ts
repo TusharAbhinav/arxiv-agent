@@ -75,33 +75,19 @@ export async function generateImplementation(
   messages.push({ role: "assistant", content: description });
   messages.push({
     role: "user",
-    content: `Great explanation! Now, please write a TypeScript implementation of this algorithm. Focus on correctness and clarity. Don't worry about comments yet, just get the code down. Use inline mock types instead of importing external modules.`,
+    content: `Great explanation! Now write a concise TypeScript implementation (aim for under 80 lines). Use the \`@anthropic-ai/sdk\` package for any LLM calls. Use standard npm packages where they exist — do not reimplement things like hashing, vector math, or HTTP from scratch. Add inline comments explaining the key decisions. Return only the code in a \`\`\`typescript block.`,
   });
 
   const turn2 = await client.messages.create({
     model: "claude-sonnet-4-6",
-    max_tokens: 2048,
+    max_tokens: 8096,
     system: SYSTEM_PROMPT,
     messages,
   });
   const rawCode = (turn2.content[0] as { type: "text"; text: string }).text;
   const typescript = extractCodeBlock(rawCode);
 
-  messages.push({ role: "assistant", content: rawCode });
-  messages.push({
-    role: "user",
-    content: `Thanks for the implementation! Now, please add inline comments to the code explaining what each part does and why. This will help others understand your thought process.`,
-  });
-
-  const turn3 = await client.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 2048,
-    system: SYSTEM_PROMPT,
-    messages,
-  });
-  const explanation = (turn3.content[0] as { type: "text"; text: string }).text;
-
-  return { description, typescript, explanation };
+  return { description, typescript, explanation: rawCode };
 }
 
 export async function validateWithRetry(
@@ -155,9 +141,10 @@ export async function generateCodeNode(
   const initial = await generateImplementation(algorithmDescription, paperContext);
   const result = await validateWithRetry(initial, paperContext);
 
+  const code = extractCodeBlock(result.explanation);
   return {
     sections: {
-      "In Code": result.explanation,
+      "In Code": `\`\`\`typescript\n${code}\n\`\`\``,
     },
   };
 }
